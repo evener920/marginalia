@@ -20,7 +20,7 @@ social:
 logo: /assets/img/logo.svg
 
 baseurl: ""
-url: "https://marginalia-blog.pages.dev"   ## ← 换成你的域名；Cloudflare Pages 会先给 *.pages.dev 预览地址
+url: "https://marginalia.201573.xyz"   ## ← 换成你的域名；Cloudflare Pages 会先给 *.pages.dev 预览地址
 
 # 点赞/评论后端：改用自托管 Cloudflare Worker + D1（仓库内 comments-worker/）。
 # 接口与 comments-server/app.py 100% 兼容，前端 reactions.js 直接调用。
@@ -63,6 +63,10 @@ exclude:
   - vendor
   - .jekyll-cache
   - comments-server    # 自托管点赞/评论后端，不进 Pages 构建
+  - comments-worker    # Worker 源码，不进 Pages 构建
+  - CLAUDE.md          # 仓库笔记，不公开
+  - CLAUDE             # 同上
+  - .github            # CI 配置，不公开
 
 # Default front matter — every post gets an OG type and gives the SEO tag
 # enough info to emit BlogPosting structured data.
