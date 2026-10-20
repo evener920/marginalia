@@ -22,10 +22,10 @@ logo: /assets/img/logo.svg
 baseurl: ""
 url: "https://your-domain.example"   ## ← 换成你的域名；Cloudflare Pages 会先给 *.pages.dev 预览地址
 
-# 点赞/评论后端（原站用自托管 FastAPI+SQLite，详见仓库内 comments-server/）。
-# 留空 = 整个互动层（点赞/评论/消息盒子）静默禁用，站点可零后端纯静态运行。
-# 想启用：可起 comments-server，或改用你的 Cloudflare Worker+D1（见改造清单）。
-comments_api: ""
+# 点赞/评论后端：改用自托管 Cloudflare Worker + D1（仓库内 comments-worker/）。
+# 接口与 comments-server/app.py 100% 兼容，前端 reactions.js 直接调用。
+# 留空则互动层静默禁用。Worker 地址：
+comments_api: "https://marginalia-comments.evener920.workers.dev"
 
 markdown: kramdown
 highlighter: rouge
