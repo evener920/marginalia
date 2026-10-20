@@ -39,18 +39,22 @@ jobs:
 
   deploy:
     needs: build
-    # 只有配置了 CF 凭证才部署；没配凭证时上面的 build 仍会跑通，作为构建校验。
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # 没配 CF 凭证时整个 deploy 阶段跳过；上面的 build 仍会跑通，充当构建校验。
+    # （job/step 的 if 不能用 secrets 上下文，故用 env 间接判断。）
+    env:
+      HAS_CF: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
     steps:
       - name: Download built site
+        if: ${{ env.HAS_CF == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: site
           path: _site
 
       - name: Deploy to Cloudflare Pages
+        if: ${{ env.HAS_CF == 'true' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
