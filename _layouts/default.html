@@ -74,8 +74,8 @@
     <div class="wrap">
       <p>
         © {{ 'now' | date: '%Y' }} {{ site.title }}.
-        由 <a href="https://github.com/gittee-coder">@gittee-coder</a> 维护，
-        源码在 <a href="https://github.com/pyf-labrary/marginalia">pyf-labrary/marginalia</a>
+        由 {{ site.author.name | default: site.title }} 维护
+        {%- if site.author.url and site.author.url != "" %}（<a href="{{ site.author.url }}">主页</a>）{% endif %}
         · Feed（<a href="{{ '/feed.xml' | relative_url }}">全部</a> / <a href="{{ '/feed-notes.xml' | relative_url }}">仅批注</a>）
         · <button class="ambient-btn" type="button" data-ambient
                   data-src="{{ '/assets/img/site/ambient-loop.mp3' | relative_url }}">

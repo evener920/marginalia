@@ -1,4 +1,4 @@
-name: Deploy Jekyll site to pyf
+name: Deploy to Cloudflare Pages
 
 on:
   push:
@@ -7,15 +7,13 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "deploy-pyf"
-  cancel-in-progress: false
+  group: "cf-pages"
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -30,60 +28,12 @@ jobs:
 
       - name: Build Jekyll site
         run: bundle exec jekyll build --destination _site
-
-      - name: Build GitHub Pages mirror (baseurl /marginalia)
-        run: bundle exec jekyll build --config _config.yml,_config_ghpages.yml --destination _site_gh
-
-      - name: Prefix hardcoded root paths in mirror
-        run: python3 scripts/fix-baseurl.py _site_gh /marginalia
-
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site_gh
-
-      - name: Reject legacy project paths
-        run: |
-          if grep -R -E '(href|src|poster|content|data-url)="/marginalia/' _site; then
-            echo "::error::Generated site still contains legacy /marginalia paths"
-            exit 1
-          fi
-
-      - name: Configure restricted deploy key
         env:
-          PYF_SSH_KEY: ${{ secrets.PYF_SSH_KEY }}
-          PYF_SSH_KNOWN_HOSTS: ${{ secrets.PYF_SSH_KNOWN_HOSTS }}
-        run: |
-          install -d -m 700 "$HOME/.ssh"
-          printf '%s\n' "$PYF_SSH_KEY" > "$HOME/.ssh/marginalia_deploy"
-          printf '%s\n' "$PYF_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/marginalia_deploy"
-          chmod 644 "$HOME/.ssh/known_hosts"
+          JEKYLL_ENV: production
 
-      - name: Deploy static site to pyf
-        run: |
-          for attempt in 1 2 3; do
-            if rsync -az --delete-delay --delay-updates \
-              --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r \
-              -e "ssh -i $HOME/.ssh/marginalia_deploy -o IdentitiesOnly=yes" \
-              _site/ marginalia-deploy@8.134.13.244:/; then
-              exit 0
-            fi
-            sleep $((attempt * 15))
-          done
-          exit 1
-
-      - name: Remove deploy key
-        if: always()
-        run: rm -f "$HOME/.ssh/marginalia_deploy"
-
-  deploy-gh:
-    needs: deploy
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'marginalia' }} --commit-dirty=true
