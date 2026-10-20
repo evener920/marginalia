@@ -20,7 +20,7 @@ social:
 logo: /assets/img/logo.svg
 
 baseurl: ""
-url: "https://your-domain.example"   ## ← 换成你的域名；Cloudflare Pages 会先给 *.pages.dev 预览地址
+url: "https://marginalia-blog.pages.dev"   ## ← 换成你的域名；Cloudflare Pages 会先给 *.pages.dev 预览地址
 
 # 点赞/评论后端：改用自托管 Cloudflare Worker + D1（仓库内 comments-worker/）。
 # 接口与 comments-server/app.py 100% 兼容，前端 reactions.js 直接调用。

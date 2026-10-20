@@ -1,4 +1,5 @@
 _site/
+comments-worker/.wrangler/
 .jekyll-cache/
 .jekyll-metadata
 .bundle/
