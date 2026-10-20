@@ -67,6 +67,7 @@ exclude:
   - CLAUDE.md          # 仓库笔记，不公开
   - CLAUDE             # 同上
   - .github            # CI 配置，不公开
+  - oauth-proxy        # Decap OAuth 代理 Worker 源码，不进 Pages 构建
 
 # Default front matter — every post gets an OG type and gives the SEO tag
 # enough info to emit BlogPosting structured data.
