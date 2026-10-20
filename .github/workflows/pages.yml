@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages
+name: Build & Deploy (Cloudflare Pages)
 
 on:
   push:
@@ -13,12 +13,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -30,6 +29,26 @@ jobs:
         run: bundle exec jekyll build --destination _site
         env:
           JEKYLL_ENV: production
+
+      - name: Upload _site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: _site
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    # 只有配置了 CF 凭证才部署；没配凭证时上面的 build 仍会跑通，作为构建校验。
+    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download built site
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: _site
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
